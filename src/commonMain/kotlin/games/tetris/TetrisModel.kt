@@ -3,7 +3,7 @@ package games.tetris
 import games.tetris.TetrisConstants.BG
 import ggi.ExtendedAbstractGameState
 import math.Vec2d
-import kotlin.math.PI
+//import kotlin.math.PI
 
 fun main() {
     val model = TetrisModel()
@@ -47,47 +47,6 @@ class TetrisModel(var nCols: Int = defaultCols, var nRows: Int = defaultRows) {
                 al.add(v)
             }
         return al
-    }
-
-    // this is called after every accepted move
-    fun checkRows(): Boolean {
-        var flag = false
-        var r = 0
-        while (r < nRows) {
-            if (full(r)) {
-                // pling();
-                flag = true
-                // this gives higher scores for rows popped higher up
-                // who dares wins
-                score += baseReward // + heightFactor * (nRows - r)
-                clearRow(r)
-                scroll(r)
-                r--
-            }
-            r++
-        }
-        return flag
-    }
-
-    private fun full(r: Int): Boolean {
-        for (i in 0 until nCols) {
-            if (a[i][r] == BG) {
-                return false
-            }
-        }
-        return true
-    }
-
-    private fun clearRow(r: Int) {
-        for (i in 0 until nCols) {
-            a[i][r] = BG
-        }
-    }
-
-    private fun scroll(sr: Int) {
-        for (r in sr downTo 1)
-            for (c in 0 until nCols)
-                a[c][r] = a[c][r - 1]
     }
 
     fun move(dx: Int, dy: Int): Boolean {
@@ -141,10 +100,6 @@ class TetrisModel(var nCols: Int = defaultCols, var nRows: Int = defaultRows) {
         }
     }
 
-    // the ghost block plays no part in the functional gameplay
-    // but is useful to show human (or vision-based)
-    // players where the block would fall
-    // if dropped
     fun getGhost(): TetronSprite? {
         val ts = tetronSprite
         if (ts != null) {
@@ -153,6 +108,49 @@ class TetrisModel(var nCols: Int = defaultCols, var nRows: Int = defaultRows) {
             return ghost
         } else return null
     }
+
+    // this is called after every accepted move
+    fun checkRows(): Boolean {
+        var flag = false
+        var r = 0
+        while (r < nRows) {
+            if (full(r)) {
+                // pling();
+                flag = true
+                // this gives higher scores for rows popped higher up
+                // who dares wins
+                score += baseReward // + heightFactor * (nRows - r)
+                clearRow(r)
+                scroll(r)
+                r--
+            }
+            r++
+        }
+        return flag
+    }
+
+    private fun full(r: Int): Boolean {
+        for (i in 0 until nCols) {
+            if (a[i][r] == BG) {
+                return false
+            }
+        }
+        return true
+    }
+
+    private fun clearRow(r: Int) {
+        for (i in 0 until nCols) {
+            a[i][r] = BG
+        }
+    }
+
+    private fun scroll(sr: Int) {
+        for (r in sr downTo 1)
+            for (c in 0 until nCols)
+                a[c][r] = a[c][r - 1]
+    }
+
+
 
     companion object {
         // var BG = 0

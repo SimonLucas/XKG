@@ -24,3 +24,5 @@ build/
 .gradle/6.7/executionHistory/executionHistory.bin
 *.bin
 *.bin
+.gradle/buildOutputCleanup/cache.properties
+.gradle/buildOutputCleanup/outputFiles.bin
