@@ -1,0 +1,113 @@
+@startuml Tetris Class Diagram - Public Interfaces
+
+
+' Main Controller
+class TetrisController {
+  +paint(xg: XGraphics)
+  +handleKeyEvent(e: XKeyEvent)
+  +getData(): List<DoubleArray>?
+  --
+}
+
+' Game State and Logic
+class TetrisGame {
+  +isTerminal(): Boolean
+  +copy(): AbstractGameState
+  +next(actions: IntArray): AbstractGameState
+  +score(): Double
+  +nTicks(): Int
+  +totalTicks(): Long
+  +subGoal(): Boolean
+  --
+}
+
+' Game Model (Grid and State)
+class TetrisModel {
+  +move(dx: Int, dy: Int): Boolean
+  +rotate()
+  +place()
+  +checkRows(): Boolean
+  +newShape(): Boolean
+  +gameOn(): Boolean
+  +copy(): TetrisModel
+  +getGhost(): TetronSprite?
+  --
+}
+
+' View for Rendering
+class TetrisView {
+  +paint(xg: XGraphics)
+  +setData(a, shape, ghostShape, score)
+  --
+}
+
+' Shape Preview Palette
+class ShapePalette {
+  +paint(xg: XGraphics)
+  +setData(shapeQueue: List<TetronSprite>)
+  --
+}
+
+' Individual Tetris Piece
+class TetronSprite {
+  +move(dx: Int, dy: Int, a: Array<IntArray>): Boolean
+  +rotate(a: Array<IntArray>): Boolean
+  +valid(a: Array<IntArray>): Boolean
+  +place(a: Array<IntArray>)
+  +getCells(): ArrayList<Cell>
+  +copy(): TetronSprite
+  --
+  +x: Int
+  +y: Int
+  +rot: Int
+  +tetron: Int
+  +color: Int
+}
+
+' Shape Definitions
+object Tetrons {
+  +getShape(index: Int, rot: Int): Tetron
+  --
+  +shapes: Array<Array<Tetron>>
+}
+
+' Data class for cell position
+class Cell {
+  +x: Int
+  +y: Int
+}
+
+' Relationships - Main Flow
+TetrisController --> TetrisGame : controls
+TetrisController --> TetrisView : updates & paints
+TetrisGame --> TetrisModel : manages
+TetrisModel --> TetronSprite : uses
+TetronSprite --> Tetrons : queries shapes
+TetronSprite --> Cell : returns
+
+' Data Flow
+ShapePalette ..> TetrisModel : reads shapeQueue
+TetrisView ..> TetronSprite : renders
+TetrisModel ..> TetronSprite : contains current & queue
+
+note right of TetrisController
+  **Game Loop Controller**
+  Orchestrates game logic,
+  agent decisions, and
+  view updates
+end note
+
+note right of TetrisModel
+  **Core Game State**
+  Maintains grid, score,
+  current piece, and
+  shape queue
+end note
+
+note bottom of TetronSprite
+  **Tetris Piece**
+  Position, rotation,
+  collision detection
+end note
+
+@enduml
