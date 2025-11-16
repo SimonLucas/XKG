@@ -47,7 +47,7 @@ class TetrisModel(var nCols: Int = defaultCols, var nRows: Int = defaultRows) {
         return tm
     }
 
-    fun getWall(binarise: Boolean = true): ArrayList<Int> {
+    fun getWall(binarise: Boolean = false): ArrayList<Int> {
         val al = ArrayList<Int>()
         for (i in 0 until nCols)
             for (j in 0 until nRows) {

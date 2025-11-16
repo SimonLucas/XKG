@@ -1,0 +1,166 @@
+@startuml Tetris Class Diagram - Public Interfaces
+
+' Main Entry Point
+class TetrisJVMTest {
+  +main()
+  --
+  -ec: EasyComponent
+  -frame: JEasyFrame
+  -xg: XGraphicsJVM
+  -game: TetrisDemoLayout
+}
+
+' Swing Component
+class EasyComponent {
+  +repaint()
+  +paintComponent(g: Graphics)
+  --
+  +xApp: XApp
+  +xg: XGraphicsJVM
+}
+
+' Layout Manager (Optional)
+class TetrisDemoLayout {
+  +paint(xg: XGraphics)
+  +handleKeyEvent(e: XKeyEvent)
+  --
+  -arcade: TetrisController
+  -shapePalette: ShapePalette
+  -plotApp: EasyGraphPlot
+}
+
+' Main Controller
+class TetrisController {
+  +paint(xg: XGraphics)
+  +handleKeyEvent(e: XKeyEvent)
+  +getData(): List<DoubleArray>?
+  --
+  +tg: TetrisGame
+  -tv: TetrisView
+  -agent: SimplePlayerInterface
+  -keyController: TetrisKeyController
+}
+
+' Game State and Logic
+class TetrisGame {
+  +isTerminal(): Boolean
+  +copy(): AbstractGameState
+  +next(actions: IntArray): AbstractGameState
+  +score(): Double
+  +nTicks(): Int
+  +totalTicks(): Long
+  +subGoal(): Boolean
+  --
+  +tm: TetrisModel
+  -nInternalTicks: Int
+}
+
+' Game Model (Grid and State)
+class TetrisModel {
+  +move(dx: Int, dy: Int): Boolean
+  +rotate()
+  +place()
+  +checkRows(): Boolean
+  +newShape(): Boolean
+  +gameOn(): Boolean
+  +copy(): TetrisModel
+  +getGhost(): TetronSprite?
+  --
+  +a: Array<IntArray>
+  +score: Int
+  +tetronSprite: TetronSprite?
+  +shapeQueue: ArrayList<TetronSprite>
+  +blockCount: Int
+}
+
+' View for Rendering
+class TetrisView {
+  +paint(xg: XGraphics)
+  +setData(a, shape, ghostShape, score)
+  --
+  -a: Array<IntArray>?
+  -shape: TetronSprite?
+  -ghostShape: TetronSprite?
+  -score: Int
+  -cellSize: Double
+  -nCols: Int
+  -nRows: Int
+}
+
+' Shape Preview Palette
+class ShapePalette {
+  +paint(xg: XGraphics)
+  +setData(shapeQueue: List<TetronSprite>)
+  --
+  -shapeQueue: List<TetronSprite>
+  -nShapes: Int
+  -cellSize: Double
+}
+
+' Individual Tetris Piece
+class TetronSprite {
+  +move(dx: Int, dy: Int, a: Array<IntArray>): Boolean
+  +rotate(a: Array<IntArray>): Boolean
+  +valid(a: Array<IntArray>): Boolean
+  +place(a: Array<IntArray>)
+  +getCells(): ArrayList<Cell>
+  +copy(): TetronSprite
+  --
+  +x: Int
+  +y: Int
+  +rot: Int
+  +tetron: Int
+  +color: Int
+}
+
+' Shape Definitions
+object Tetrons {
+  +getShape(index: Int, rot: Int): Tetron
+  --
+  +shapes: Array<Array<Tetron>>
+}
+
+' Data class for cell position
+class Cell {
+  +x: Int
+  +y: Int
+}
+
+' Relationships - Main Flow
+TetrisJVMTest --> EasyComponent : creates
+EasyComponent --> TetrisDemoLayout : calls paint()
+TetrisDemoLayout --> TetrisController : delegates
+TetrisDemoLayout --> ShapePalette : updates & paints
+TetrisController --> TetrisGame : controls
+TetrisController --> TetrisView : updates & paints
+TetrisGame --> TetrisModel : manages
+TetrisModel --> TetronSprite : uses
+TetronSprite --> Tetrons : queries shapes
+TetronSprite --> Cell : returns
+
+' Data Flow
+ShapePalette ..> TetrisModel : reads shapeQueue
+TetrisView ..> TetronSprite : renders
+TetrisModel ..> TetronSprite : contains current & queue
+
+note right of TetrisController
+  **Game Loop Controller**
+  Orchestrates game logic,
+  agent decisions, and
+  view updates
+end note
+
+note right of TetrisModel
+  **Core Game State**
+  Maintains grid, score,
+  current piece, and
+  shape queue
+end note
+
+note bottom of TetronSprite
+  **Tetris Piece**
+  Position, rotation,
+  collision detection
+end note
+
+@enduml

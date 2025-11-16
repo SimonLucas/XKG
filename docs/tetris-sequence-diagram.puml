@@ -1,0 +1,224 @@
+@startuml Tetris Game Loop - Sequence Diagram
+
+actor "Main Loop" as Main
+participant "EasyComponent" as EC
+participant "TetrisDemoLayout" as Layout
+participant "TetrisController" as Controller
+participant "TetrisGame" as Game
+participant "TetrisModel" as Model
+participant "TetronSprite" as Sprite
+participant "TetrisView" as View
+participant "ShapePalette" as Palette
+participant "Agent" as Agent
+
+== Game Loop Iteration ==
+
+Main -> EC: repaint()
+activate EC
+note right: Triggered by\nmain loop
+
+EC -> EC: paintComponent(g)
+EC -> Layout: paint(xg)
+activate Layout
+
+== Game Logic Update ==
+
+Layout -> Controller: paint(xg)
+activate Controller
+
+Controller -> Game: isTerminal()
+activate Game
+Game -> Model: gameOn()
+activate Model
+Model -> Sprite: valid(a)
+activate Sprite
+Sprite --> Model: boolean
+deactivate Sprite
+Model --> Game: boolean
+deactivate Model
+Game --> Controller: boolean
+deactivate Game
+
+alt Game Over
+  Controller -> Game: <<create new>>
+  note right: Reset game if terminal
+end
+
+Controller -> Agent: getAction(tg.copy(), 0)
+activate Agent
+note right: AI or keyboard input
+Agent --> Controller: action
+deactivate Agent
+
+Controller -> Game: next(actions)
+activate Game
+
+Game -> Game: takeAction(action)
+
+alt Action = Left/Right
+  Game -> Model: move(dx, 0)
+  activate Model
+  Model -> Sprite: move(dx, 0, a)
+  activate Sprite
+  Sprite -> Sprite: valid(a)
+  Sprite --> Model: boolean
+  deactivate Sprite
+  Model --> Game: boolean
+  deactivate Model
+
+else Action = Rotate
+  Game -> Model: rotate()
+  activate Model
+  Model -> Sprite: rotate(a)
+  activate Sprite
+  Sprite -> Sprite: valid(a)
+  Sprite --> Model: boolean
+  deactivate Sprite
+  Model --> Game: boolean
+  deactivate Model
+
+else Action = Down
+  Game -> Model: move(0, 1)
+  activate Model
+  Model -> Sprite: move(0, 1, a)
+  activate Sprite
+  Sprite --> Model: false (can't move)
+  deactivate Sprite
+  Model --> Game: false
+  deactivate Model
+
+  note right: Piece landed
+
+  Game -> Model: place()
+  activate Model
+  Model -> Sprite: place(a)
+  activate Sprite
+  note right: Write piece to grid
+  Sprite --> Model
+  deactivate Sprite
+  Model --> Game
+  deactivate Model
+
+  Game -> Model: checkRows()
+  activate Model
+  Model -> Model: full(r)?
+  Model -> Model: clearRow(r)
+  Model -> Model: scroll(r)
+  Model --> Game: cleared
+  deactivate Model
+
+  Game -> Model: newShape()
+  activate Model
+  Model -> Model: shapeQueue.removeAt(0)
+  Model -> Model: fillShapeQueue()
+  note right: Get next from queue\nand refill
+  Model -> Sprite: <<create new>>
+  Model -> Sprite: valid(a)
+  activate Sprite
+  Sprite --> Model: boolean
+  deactivate Sprite
+  Model --> Game: boolean
+  deactivate Model
+
+else Action = Drop
+  loop Until can't move
+    Game -> Model: move(0, 1)
+    activate Model
+    Model -> Sprite: move(0, 1, a)
+    Model --> Game: boolean
+    deactivate Model
+  end
+  Game -> Model: place()
+  Game -> Model: checkRows()
+  Game -> Model: newShape()
+end
+
+Game -> Game: increment ticks
+
+alt Auto-drop time?
+  Game -> Game: takeAction(Down)
+  note right: Automatic drop\nevery N ticks
+end
+
+Game --> Controller
+deactivate Game
+
+Controller -> Game: score()
+activate Game
+Game --> Controller: score
+deactivate Game
+
+== Update Views ==
+
+Controller -> Model: getGhost()
+activate Model
+Model -> Sprite: copy()
+loop While can move
+  Model -> Sprite: move(0, 1, a)
+end
+Model --> Controller: ghostSprite
+deactivate Model
+
+Controller -> View: setData(grid, sprite, ghost, score)
+activate View
+View --> Controller
+deactivate View
+
+Controller -> View: paint(xg)
+View -> View: calcCellSize()
+View -> View: drawBackground()
+
+View -> View: draw(grid)
+note right: Draw placed blocks
+
+View -> Sprite: getCells()
+activate Sprite
+Sprite --> View: cells
+deactivate Sprite
+
+View -> View: drawGhostShape()
+View -> View: drawShape()
+View -> View: statusText()
+
+View --> Controller
+deactivate View
+
+Controller --> Layout
+deactivate Controller
+
+== Update Palette ==
+
+Layout -> Palette: setData(arcade.tg.tm.shapeQueue)
+activate Palette
+Palette --> Layout
+deactivate Palette
+
+Layout -> Palette: paint(xg)
+activate Palette
+Palette -> Palette: calcCellSize()
+Palette -> Palette: drawBackground()
+Palette -> Palette: drawTitle()
+
+loop For each queued shape
+  Palette -> Sprite: getCells()
+  activate Sprite
+  Sprite --> Palette: cells
+  deactivate Sprite
+  Palette -> Palette: drawShape()
+end
+
+Palette --> Layout
+deactivate Palette
+
+Layout --> EC
+deactivate Layout
+
+EC --> Main
+deactivate EC
+
+note over Main
+  Sleep until next frame
+  (~40ms for 25 FPS)
+end note
+
+@enduml

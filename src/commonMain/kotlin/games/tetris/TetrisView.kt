@@ -7,7 +7,7 @@ import math.Vec2d
 import kotlin.math.min
 
 
-class TetrisView(val nCols: Int, val nRows: Int) : XApp {
+class TetrisView(val nCols: Int, val nRows: Int, var binarise: Boolean = false) : XApp {
 
     var count = 0
     override fun paint(xg: XGraphics) {
@@ -15,7 +15,9 @@ class TetrisView(val nCols: Int, val nRows: Int) : XApp {
         // work out the cell size
         calcCellSize(xg)
         drawBackground(xg)
-        binarise()
+        if (binarise) {
+            binarise()
+        }
         draw(xg, a)
         drawGhostShape(xg, ghostShape)
         drawShape(xg, shape)
