@@ -26,3 +26,7 @@ build/
 *.bin
 .gradle/buildOutputCleanup/cache.properties
 .gradle/buildOutputCleanup/outputFiles.bin
+*.klib
+*.bin
+*.log
+*.bin

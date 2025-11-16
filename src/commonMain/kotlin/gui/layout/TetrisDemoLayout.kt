@@ -1,6 +1,7 @@
 package gui.layout
 
 import agents.PolicyEvoAgent
+import games.tetris.ShapePalette
 import games.tetris.TetrisController
 import games.tetris.TetrisModel
 import gui.*
@@ -11,6 +12,7 @@ class TetrisDemoLayout : XApp {
     // just pop a sample layout here for now
     val plotApp: EasyGraphPlot = EasyGraphPlot()
     val arcade = TetrisController()
+    val shapePalette = ShapePalette(nShapes = 3)
     val xp = XPalette(seed = 2)
 
     init {
@@ -30,12 +32,16 @@ class TetrisDemoLayout : XApp {
         val layout = Layout(0.05)
         val panes = layout.hPartition(
             xg.width(), xg.height()
-            , 2,
-            arrayListOf(0.3, 0.7)
+            , 3,
+            arrayListOf(0.3, 0.15, 0.55)
         )
 
         panes[0].app = arcade
-        panes[1].app = plotApp
+        panes[1].app = shapePalette
+        panes[2].app = plotApp
+
+        // Update the palette with the current shape queue
+        shapePalette.setData(arcade.tg.tm.shapeQueue)
 
         plotApp.setData(arcade.getData())
 

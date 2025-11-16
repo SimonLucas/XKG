@@ -1,5 +1,5 @@
 buildscript {
-    ext.kotlin_version = '1.9.0'
+    ext.kotlin_version = '2.1.0'
     repositories {
         mavenCentral()
     }
@@ -9,9 +9,9 @@ buildscript {
 }
 plugins {
     id 'java'
-    id 'org.jetbrains.kotlin.multiplatform' version '1.9.0'
-//    id 'org.jetbrains.kotlin.jvm' version '1.9.0'
-    id 'org.jetbrains.kotlin.plugin.serialization' version '1.9.0'
+    id 'org.jetbrains.kotlin.multiplatform' version '2.1.0'
+//    id 'org.jetbrains.kotlin.jvm' version '2.1.0'
+    id 'org.jetbrains.kotlin.plugin.serialization' version '2.1.0'
 }
 
 apply plugin: "java-library"
@@ -27,13 +27,6 @@ tasks.register("count") {
 
 repositories {
     mavenCentral()
-    jcenter()
-}
-
-repositories {
-    maven {
-        url "https://dl.bintray.com/kotlin/kotlinx.html"
-    }
 }
 
 group 'com.example'
@@ -69,7 +62,7 @@ kotlin {
         commonMain {
             dependencies {
                 implementation kotlin('stdlib-common')
-                implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.2.1")
+                implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.7.3")
 
             }
         }
@@ -82,7 +75,7 @@ kotlin {
         jvmMain {
             dependencies {
                 implementation kotlin('stdlib-jdk8')
-                implementation("org.jetbrains.kotlinx:kotlinx-html-js:0.7.1")
+                implementation("org.jetbrains.kotlinx:kotlinx-html-jvm:0.11.0")
 
             }
         }
@@ -95,7 +88,7 @@ kotlin {
         jsMain {
             dependencies {
                 implementation kotlin('stdlib-js')
-                implementation("org.jetbrains.kotlinx:kotlinx-html-js:0.7.1")
+                implementation("org.jetbrains.kotlinx:kotlinx-html-js:0.11.0")
 
 
                 // implementation("org.jetbrains.kotlinx")
@@ -116,6 +109,13 @@ kotlin {
 
     // task(type)
 
+}
+
+task runTetrisJVM(type: JavaExec) {
+    group = "application"
+    description = "Run TetrisJVMTest"
+    classpath = kotlin.targets.jvm.compilations.main.output.allOutputs + kotlin.targets.jvm.compilations.main.runtimeDependencyFiles
+    mainClass = "test.tetris.TetrisJVMTestKt"
 }
 
 println("Hello 2")

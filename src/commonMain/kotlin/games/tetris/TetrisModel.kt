@@ -21,7 +21,13 @@ class TetrisModel(var nCols: Int = defaultCols, var nRows: Int = defaultRows) {
     // or maybe better to use the one in TetrisGame instead...
     var blockCount = 0
 
+    // Queue of upcoming shapes for the palette
+    val shapeQueue = ArrayList<TetronSprite>()
+    var queueSize = 5  // Number of shapes to keep in queue
+
     init {
+        // Fill the initial shape queue
+        fillShapeQueue()
         if (tetronSprite == null) newShape()
     }
 
@@ -30,6 +36,11 @@ class TetrisModel(var nCols: Int = defaultCols, var nRows: Int = defaultRows) {
         tm.score = score
         tm.blockCount = blockCount
         tm.tetronSprite = tetronSprite?.copy()
+        // Copy the shape queue
+        tm.shapeQueue.clear()
+        for (shape in shapeQueue) {
+            tm.shapeQueue.add(shape.copy())
+        }
         for (i in 0 until nCols)
             for (j in 0 until nRows)
                 tm.a[i][j] = a[i][j]
@@ -75,9 +86,33 @@ class TetrisModel(var nCols: Int = defaultCols, var nRows: Int = defaultRows) {
     }
 
     fun newShape(): Boolean {
-        // create a shape in the correct place and then check for it's
-        // validity
+        // Get the next shape from the queue
+        if (shapeQueue.isEmpty()) {
+            fillShapeQueue()
+        }
 
+        if (shapeQueue.isEmpty()) {
+            tetronSprite = null
+            return false
+        }
+
+        val ts = shapeQueue.removeAt(0)
+        // Position it at the top
+        ts.x = (nCols / 2) - 1
+        ts.y = 2
+
+        if (ts.valid(a)) {
+            tetronSprite = ts
+            // Refill the queue to maintain the desired size
+            fillShapeQueue()
+            return true
+        } else {
+            tetronSprite = null
+            return false
+        }
+    }
+
+    private fun generateNextShape(): TetronSprite {
         val tType =
             if (cyclicBlockType) {
                 blockCount % Tetrons.shapes.size
@@ -87,16 +122,15 @@ class TetrisModel(var nCols: Int = defaultCols, var nRows: Int = defaultRows) {
         // increment the block count whether we use it to determine block type or not
         blockCount++
         val tColor = if (randomShapeColours) rand.nextInt(Tetrons.shapes.size) else tType
-        val x = (nCols / 2) - 1
-        val y = 2
+        val x = 0  // Will be positioned when added to game
+        val y = 0
         val rotation = if (randomInitialRotation) rand.nextInt(4) else 0
-        val ts = TetronSprite(x, y, rotation, tType, tColor)
-        if (ts.valid(a)) {
-            tetronSprite = ts
-            return true
-        } else {
-            tetronSprite = null
-            return false
+        return TetronSprite(x, y, rotation, tType, tColor)
+    }
+
+    private fun fillShapeQueue() {
+        while (shapeQueue.size < queueSize) {
+            shapeQueue.add(generateNextShape())
         }
     }
 
