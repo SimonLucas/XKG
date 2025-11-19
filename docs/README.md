@@ -7,6 +7,19 @@ This directory contains UML diagrams and architecture documentation for the Tetr
 - **tetris-class-diagram.puml** - UML class diagram showing class relationships and public interfaces
 - **tetris-sequence-diagram.puml** - UML sequence diagram showing game loop method calls
 - **tetris-architecture-summary.md** - Detailed architecture documentation
+- **PLANTUML_SETUP.md** - Setup instructions for viewing diagrams in IntelliJ IDEA
+
+## Quick Start
+
+**Graphviz is now installed!** ✓ Path: `/opt/homebrew/bin/dot`
+
+**To view diagrams in IntelliJ IDEA:**
+1. Open IntelliJ IDEA Settings (`⌘,`)
+2. Go to: **Languages & Frameworks > PlantUML**
+3. Set Graphviz path to: `/opt/homebrew/bin/dot`
+4. Open any `.puml` file - diagrams will render automatically!
+
+See **PLANTUML_SETUP.md** for detailed instructions and troubleshooting.
 
 ## Viewing the Diagrams
 

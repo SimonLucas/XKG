@@ -94,7 +94,7 @@ data class TetronSprite(var x: Int, var y: Int, var rot: Int, var tetron: Int, v
     }
 
     fun valid(a: Array<IntArray>): Boolean {
-        val theta = (rot % 4) * PI / 2
+//        val theta = (rot % 4) * PI / 2
         for (c in Tetrons.getShape(tetron, rot)) {
             val cell = translate(c)
             if (outOfBounds(a, cell)) return false

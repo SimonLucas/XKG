@@ -43,7 +43,11 @@ class TetrisController : XApp , RolloutDataSource{
             val message = "${tg.nTicks()}\t $score\t $action\t ${tg.totalTicks()}\t ${tg.subGoal()}"
             // println(message)
         }
-        tv.setData(tg.tm.a, tg.tm.tetronSprite, tg.tm.getGhost(), tg.score().toInt())
+        tv.setData(
+            tg.tm.a,
+            tg.tm.tetronSprite,
+            tg.tm.getGhost(),
+            tg.score().toInt())
         tv.paint(xg)
     }
 

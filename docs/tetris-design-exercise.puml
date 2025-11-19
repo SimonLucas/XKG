@@ -1,0 +1,44 @@
+@startuml Tetris Class Diagram - Public Interfaces
+
+' Main Controller
+class TetrisController {
+  +handleKeyEvent(e: XKeyEvent)
+  --
+  -view: TetrisView
+  -model: TetrisModel
+}
+
+class TetrisView {
+  +setData(state: TetrisState)
+  +paintComponent()
+}
+
+class TetrisModel {
+  +getState(): TetrisState
+  +takeAction(action: TetrisAction)
+  +newGame()
+}
+
+class TetrisSprite {
+  +moveOrRotate(action: TetrisAction)
+  +copy(): TetrisSprite
+  +getCells(): List<Cell>
+  --
+  color: int
+  shape: List<Cell>
+}
+
+class Cell {
+--
+x: int
+y: int
+}
+
+class TetrisState {
+}
+
+
+class TetrisAction {
+}
+
+@enduml
